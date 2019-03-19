@@ -364,7 +364,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 			final BeanFactory parent = this;
 			if (System.getSecurityManager() != null) {
 				bean = AccessController.doPrivileged((PrivilegedAction<Object>) () ->
-						getInstantiationStrategy().instantiate(bd, null, parent),
+								getInstantiationStrategy().instantiate(bd, null, parent),
 						getAccessControlContext());
 			}
 			else {
@@ -484,7 +484,9 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 		// Make sure bean class is actually resolved at this point, and
 		// clone the bean definition in case of a dynamically resolved Class
 		// which cannot be stored in the shared merged bean definition.
+		//判断注入的Bean是否可以被实例化，是否可以通过类装载器载入
 		Class<?> resolvedClass = resolveBeanClass(mbd, beanName);
+
 		if (resolvedClass != null && !mbd.hasBeanClass() && mbd.getBeanClassName() != null) {
 			mbdToUse = new RootBeanDefinition(mbd);
 			mbdToUse.setBeanClass(resolvedClass);
@@ -492,6 +494,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 
 		// Prepare method overrides.
 		try {
+			//准备方法重写
 			mbdToUse.prepareMethodOverrides();
 		}
 		catch (BeanDefinitionValidationException ex) {
@@ -501,6 +504,8 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 
 		try {
 			// Give BeanPostProcessors a chance to return a proxy instead of the target bean instance.
+			//  如果Bean配置了PostProcessor，那么返回一个Proxy
+
 			Object bean = resolveBeforeInstantiation(beanName, mbdToUse);
 			if (bean != null) {
 				return bean;
@@ -619,11 +624,11 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 					if (!actualDependentBeans.isEmpty()) {
 						throw new BeanCurrentlyInCreationException(beanName,
 								"Bean with name '" + beanName + "' has been injected into other beans [" +
-								StringUtils.collectionToCommaDelimitedString(actualDependentBeans) +
-								"] in its raw version as part of a circular reference, but has eventually been " +
-								"wrapped. This means that said other beans do not use the final version of the " +
-								"bean. This is often the result of over-eager type matching - consider using " +
-								"'getBeanNamesOfType' with the 'allowEagerInit' flag turned off, for example.");
+										StringUtils.collectionToCommaDelimitedString(actualDependentBeans) +
+										"] in its raw version as part of a circular reference, but has eventually been " +
+										"wrapped. This means that said other beans do not use the final version of the " +
+										"bean. This is often the result of over-eager type matching - consider using " +
+										"'getBeanNamesOfType' with the 'allowEagerInit' flag turned off, for example.");
 					}
 				}
 			}
@@ -1292,7 +1297,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 			final BeanFactory parent = this;
 			if (System.getSecurityManager() != null) {
 				beanInstance = AccessController.doPrivileged((PrivilegedAction<Object>) () ->
-						getInstantiationStrategy().instantiate(mbd, beanName, parent),
+								getInstantiationStrategy().instantiate(mbd, beanName, parent),
 						getAccessControlContext());
 			}
 			else {
@@ -1894,7 +1899,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 			});
 			try {
 				AccessController.doPrivileged((PrivilegedExceptionAction<Object>) () ->
-					initMethod.invoke(bean), getAccessControlContext());
+						initMethod.invoke(bean), getAccessControlContext());
 			}
 			catch (PrivilegedActionException pae) {
 				InvocationTargetException ex = (InvocationTargetException) pae.getException();
