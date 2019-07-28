@@ -220,7 +220,10 @@ public abstract class AbstractBeanDefinitionReader implements BeanDefinitionRead
 		if (resourceLoader instanceof ResourcePatternResolver) {
 			// Resource pattern matching available.
 			try {
+				//将指定位置的Bean定义资源文件解析为Spring IoC容器封装的资源
+				//加载多个指定位置的Bean定义资源文件
 				Resource[] resources = ((ResourcePatternResolver) resourceLoader).getResources(location);
+				//委派调用其子类XmlBeanDefinitionReader的方法，实现加载功能
 				int count = loadBeanDefinitions(resources);
 				if (actualResources != null) {
 					Collections.addAll(actualResources, resources);

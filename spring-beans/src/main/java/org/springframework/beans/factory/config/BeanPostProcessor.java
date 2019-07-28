@@ -57,6 +57,8 @@ public interface BeanPostProcessor {
 	 */
 	@Nullable
 	default Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
+		//在实例化目标对象之前执行，可以自定义实例化逻辑，如返回一个代理对象等
+
 		return bean;
 	}
 

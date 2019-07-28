@@ -242,6 +242,9 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 
 		//转换BeanName（XML中别名、去掉FactoryBean的“&”）
 		//去掉“&”是什么？？
+
+		System.out.println("这是新的开始呀");
+
 		final String beanName = transformedBeanName(name);
 		Object bean;
 

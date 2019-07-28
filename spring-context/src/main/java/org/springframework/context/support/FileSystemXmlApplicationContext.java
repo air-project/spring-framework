@@ -17,7 +17,9 @@
 package org.springframework.context.support;
 
 import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.context.ApplicationContext;
+import org.springframework.core.ResolvableType;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 import org.springframework.lang.Nullable;
@@ -161,4 +163,13 @@ public class FileSystemXmlApplicationContext extends AbstractXmlApplicationConte
 		return new FileSystemResource(path);
 	}
 
+	@Override
+	public <T> ObjectProvider<T> getBeanProvider(Class<T> requiredType) {
+		return null;
+	}
+
+	@Override
+	public <T> ObjectProvider<T> getBeanProvider(ResolvableType requiredType) {
+		return null;
+	}
 }

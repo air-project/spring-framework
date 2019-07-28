@@ -26,8 +26,10 @@ import org.springframework.beans.BeanWrapper;
 import org.springframework.beans.BeanWrapperImpl;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.groovy.GroovyBeanDefinitionReader;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
+import org.springframework.core.ResolvableType;
 import org.springframework.lang.Nullable;
 
 /**
@@ -181,4 +183,13 @@ public class GroovyWebApplicationContext extends AbstractRefreshableWebApplicati
 		throw new NoSuchBeanDefinitionException(property);
 	}
 
+	@Override
+	public <T> ObjectProvider<T> getBeanProvider(Class<T> requiredType) {
+		return null;
+	}
+
+	@Override
+	public <T> ObjectProvider<T> getBeanProvider(ResolvableType requiredType) {
+		return null;
+	}
 }

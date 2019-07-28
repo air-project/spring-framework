@@ -109,7 +109,6 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
 	/** Map between depending bean names: bean name to Set of bean names for the bean's dependencies. */
 	private final Map<String, Set<String>> dependenciesForBeanMap = new ConcurrentHashMap<>(64);
 
-
 	@Override
 	public void registerSingleton(String beanName, Object singletonObject) throws IllegalStateException {
 		Assert.notNull(beanName, "Bean name must not be null");
@@ -129,6 +128,12 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
 	 * <p>To be called for eager registration of singletons.
 	 * @param beanName the name of the bean
 	 * @param singletonObject the singleton object
+	 *
+	 * 其次他首先将给定的对象放到singletonObjects的集合中,这个集合主要是应用于单例对象的缓存,
+
+	其次,他将同名的单例工厂对象给移除,然后又从早期的单例对象池中将同名的单例对象移除,
+
+	最后会将单例对象在registeredSingletons集合里进行登记.
 	 */
 	protected void addSingleton(String beanName, Object singletonObject) {
 		synchronized (this.singletonObjects) {
@@ -151,7 +156,7 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
 		Assert.notNull(singletonFactory, "Singleton factory must not be null");
 		synchronized (this.singletonObjects) {
 			if (!this.singletonObjects.containsKey(beanName)) {
-				this.singletonFactories.put(beanName, singletonFactory);
+				this.singletonFactories.put(beanName, singletonFactory); //提前暴露 用于解决循环依赖问题
 				this.earlySingletonObjects.remove(beanName);
 				this.registeredSingletons.add(beanName);
 			}
@@ -172,16 +177,37 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
 	 * @param allowEarlyReference whether early references should be created or not
 	 * @return the registered singleton object, or {@code null} if none found
 	 */
+	//https://www.sohu.com/a/214717253_714863
 	@Nullable
 	protected Object getSingleton(String beanName, boolean allowEarlyReference) {
-		Object singletonObject = this.singletonObjects.get(beanName);
+		Object singletonObject = this.singletonObjects.get(beanName); //这个一级缓存代表已经初始化好了的
+
+		//方法isSingletonCurrentlyInCreation实现的内容是判断当前bean是否是正在被加载的bean，
+		//判断方法是使用一个set来实现，没当在进行加载单例bean之前，Spring会将该bean的name放到set中
+
 		if (singletonObject == null && isSingletonCurrentlyInCreation(beanName)) {
 			synchronized (this.singletonObjects) {
+				//earlySingletonObjects是一个map(二级缓存)，存储的是还没有加载完成的bean的信息(就是还在差一些类似属性注入的)
+
 				singletonObject = this.earlySingletonObjects.get(beanName);
 				if (singletonObject == null && allowEarlyReference) {
+					//singletonFactories也是一个Map(三级缓存) 存储着bean name以及创建该bean的BeanFactory
+					//首先通过取到用于创建该bean的BeanFactory
 					ObjectFactory<?> singletonFactory = this.singletonFactories.get(beanName);
+					//那用于获取bean实例的BeanFactory是什么时候被什么对象放到map中来的呢？
+					//可以发现是一个叫做addSingletonFactory的方法在做这件事情
+					//那是什么地方调用该方法的呢？
+					//可以在AbstractAutowireCapableBeanFactory类中的doCreateBean方法中找到该方法的调用细节
+
+
 					if (singletonFactory != null) {
+						//然后调用BeanFactory的getObject方法获取到bean实例
+						//这个singletonFactory是如何实现的呢？？
+						//于是想到singletonFactories.put是中的是一个什么样的BeanFactory
+						//搜索singletonFactories.put发现在addSingletonFactory中，第二个参数由
+						//getEarlyBeanReference(beanName, mbd, bean)
 						singletonObject = singletonFactory.getObject();
+
 						this.earlySingletonObjects.put(beanName, singletonObject);
 						this.singletonFactories.remove(beanName);
 					}
